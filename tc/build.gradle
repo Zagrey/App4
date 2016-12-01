@@ -1,13 +1,13 @@
 buildscript {
-	ext {
-		springBootVersion = '1.4.2.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+    ext {
+        springBootVersion = '1.4.2.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
 apply plugin: 'java'
@@ -15,18 +15,23 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 jar {
-	baseName = 'tc'
-	version = '0.0.1-SNAPSHOT'
+    baseName = 'tc'
+    version = '0.0.1-SNAPSHOT'
 }
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-starter-web')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile('org.springframework.boot:spring-boot-starter-web:1.4.2.RELEASE')
+    compile('org.springframework.boot:spring-boot-starter-amqp:1.4.2.RELEASE')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa:1.4.2.RELEASE')
+    compile('org.springframework.boot:spring-boot-starter-cache:1.4.2.RELEASE')
+    compile('org.postgresql:postgresql:9.4.1212.jre7')
+    compile('org.projectlombok:lombok:1.16.10')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
