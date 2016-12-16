@@ -11,7 +11,7 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+//apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 jar {
@@ -34,4 +34,5 @@ dependencies {
     compile('org.postgresql:postgresql:9.4.1212.jre7')
     compile('org.projectlombok:lombok:1.16.10')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile project(path: ':common')
 }

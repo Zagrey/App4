@@ -1,9 +1,10 @@
 package com.example.model;
 
+import com.example.service.GreetingService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import com.example.service.GreetingService;
 import lombok.EqualsAndHashCode;
+import util.Greeting;
 
 @Data
 @AllArgsConstructor

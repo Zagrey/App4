@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.model.Greeting;
+import util.Greeting;
 
 import java.util.Collection;
 import java.util.HashMap;
