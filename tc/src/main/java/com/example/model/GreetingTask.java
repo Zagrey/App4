@@ -4,7 +4,7 @@ import com.example.service.GreetingService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import util.Greeting;
+import com.common.util.Greeting;
 
 @Data
 @AllArgsConstructor

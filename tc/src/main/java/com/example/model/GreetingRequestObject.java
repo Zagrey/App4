@@ -2,7 +2,7 @@ package com.example.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import util.Greeting;
+import com.common.util.Greeting;
 
 import java.io.Serializable;
 

@@ -1,6 +1,6 @@
 package com.example.service;
 
-import util.Greeting;
+import com.common.util.Greeting;
 
 import java.util.Collection;
 

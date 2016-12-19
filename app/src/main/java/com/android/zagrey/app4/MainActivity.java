@@ -9,6 +9,7 @@ import android.view.*;
 import android.widget.TextView;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import com.common.util.Greeting;
 
 
 public class MainActivity extends AppCompatActivity {

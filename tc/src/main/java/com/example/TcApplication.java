@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @SpringBootApplication
 @EnableCaching
-@EntityScan(basePackages = "util")
+@EntityScan(basePackages = "com.common.util")
 public class TcApplication {
 
     public static void main(String[] args) {
