@@ -25,16 +25,13 @@ repositories {
     mavenCentral()
 }
 
-//test {
-//    filter {
-//        //include specific method in any of the tests
-//        includeTestsMatching "*UiCheck"
-//
-//        //include all tests from package
-//        includeTestsMatching "org.gradle.internal.*"
-//
-//    }
-//}
+test {
+    filter {
+//        includeTestsMatching "com.tc.it.*"
+        includeTestsMatching "com.tc.tests.*"
+
+    }
+}
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web:1.4.2.RELEASE')

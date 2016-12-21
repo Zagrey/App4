@@ -1,4 +1,4 @@
-package com.example.it;
+package com.tc.it;
 
 
 import com.common.util.Greeting;
@@ -45,6 +45,5 @@ public class TcAppServicesIT {
 
         List<Greeting> actualList = responseEntity.getBody();
         assertThat(actualList.size(), greaterThan(5));
-
     }
 }
