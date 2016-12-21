@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Greeting doInBackground(Void... params) {
             try {
-                final String url = "http://192.168.0.100:8080/api/greetings/71436";
+                final String url = "http://192.168.0.105:8080/api/greetings/10227";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                 Greeting greeting = restTemplate.getForObject(url, Greeting.class);
