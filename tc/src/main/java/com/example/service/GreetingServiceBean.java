@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GreetingServiceBean implements GreetingService {
 
     private static AtomicLong nextId;
-    private static Map<Long, Greeting> greetingMap;
+    private static volatile Map<Long, Greeting> greetingMap;
 
     private static Greeting save(Greeting greeting) {
         if (greetingMap == null) {

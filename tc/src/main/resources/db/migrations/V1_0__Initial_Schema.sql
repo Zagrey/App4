@@ -1,0 +1,30 @@
+CREATE TABLE public.greeting (
+  id   BIGINT PRIMARY KEY NOT NULL,
+  text CHARACTER VARYING(255)
+);
+
+CREATE TABLE public.phonetype (
+  type        CHARACTER VARYING PRIMARY KEY NOT NULL,
+  description CHARACTER VARYING
+);
+
+CREATE TABLE public.users (
+  phone     BIGINT PRIMARY KEY NOT NULL,
+  name      CHARACTER VARYING,
+  phonetype CHARACTER VARYING,
+  FOREIGN KEY (phonetype) REFERENCES public.phonetype (type)
+  MATCH SIMPLE ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE INDEX fki_ph_type
+  ON users USING BTREE (phonetype);
+
+
+CREATE SEQUENCE public.hibernate_sequence
+INCREMENT 1
+START 1
+MINVALUE 1
+MAXVALUE 9223372036854775807
+CACHE 1;
+
+ALTER SEQUENCE public.hibernate_sequence
+OWNER TO vmax;

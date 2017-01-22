@@ -1,0 +1,2 @@
+ALTER TABLE users ADD address CHARACTER VARYING(255);
+

@@ -1,9 +1,7 @@
 package com.example.service;
 
-import com.common.util.Greeting;
-import com.common.util.UsersEntity;
-import com.example.repository.GreetingRepository;
-import com.example.repository.UsersRepository;
+import com.common.util.Point;
+import com.example.repository.PointRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -16,92 +14,87 @@ import java.util.Collection;
 
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-public class GreetingServiceBeanJpa implements GreetingService {
+public class PointServiceBeanJpa implements PointService {
     @Autowired
-    private GreetingRepository greetingRepository;
-
-    @Autowired
-    private UsersRepository usersRepository;
+    private PointRepository pointRepository;
 
     @Cacheable(
-            value = "greetings", key = "100"
+            value = "points", key = "100"
             )
     @Override
-    public Collection<Greeting> findAll() {
+    public Collection<Point> findAll() {
 
-        Collection<Greeting> greetings = greetingRepository.findAll();
+        return pointRepository.findAll();
+    }
 
-        Collection<UsersEntity> users = usersRepository.findAll();
+    @Override
+    public Collection<Point> findAll(Point point) {
 
-        System.out.println("USERS: " + users);
-
-        return greetings;
+        return pointRepository.findAll();
     }
 
     @Cacheable(
-            value = "greetings",
+            value = "points",
             key = "#id")
     @Override
-    public Greeting findOne(Long id) {
+    public Point findOne(Long id) {
 
-        Greeting greeting = greetingRepository.findOne(id);
+        Point point = pointRepository.findOne(id);
 
-        return greeting;
+        return point;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     @CachePut(
-            value = "greetings",
+            value = "points",
             key = "#result.id")
     @CacheEvict(
-            value = "greetings",
+            value = "points",
             key = "100")
-    public Greeting create(Greeting greeting) {
+    public Point create(Point point) {
 
         // Ensure the entity object to be created does NOT exist in the
         // repository. Prevent the default behavior of save() which will update
         // an existing entity if the entity matching the supplied id exists.
-        if (greeting.getId() != null) {
-            // Cannot create Greeting with specified ID value
+        if (point.getId() != null) {
+            // Cannot create Point with specified ID value
             return null;
         }
 
-        Greeting savedGreeting = greetingRepository.save(greeting);
-
-        return savedGreeting;
+        return pointRepository.save(point);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     @CachePut(
-            value = "greetings",
-            key = "#greeting.id")
-    public Greeting update(Greeting greeting) {
+            value = "points",
+            key = "#point.id")
+    public Point update(Point point) {
 
         // Ensure the entity object to be updated exists in the repository to
         // prevent the default behavior of save() which will persist a new
         // entity if the entity matching the id does not exist
-        Greeting greetingToUpdate = findOne(greeting.getId());
-        if (greetingToUpdate == null) {
-            // Cannot update Greeting that hasn't been persisted
+        Point pointToUpdate = findOne(point.getId());
+        if (pointToUpdate == null) {
+            // Cannot update Point that hasn't been persisted
             return null;
         }
 
-        greetingToUpdate.setText(greeting.getText());
-        Greeting updatedGreeting = greetingRepository.save(greetingToUpdate);
+        pointToUpdate.setName(point.getName());
+        Point updatedPoint = pointRepository.save(pointToUpdate);
 
-        return updatedGreeting;
+        return updatedPoint;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     @CacheEvict(
-            value = "greetings",
+            value = "points",
             key = "#id")
     public void delete(Long id) {
 
-        greetingRepository.delete(id);
+        pointRepository.delete(id);
 
     }
 

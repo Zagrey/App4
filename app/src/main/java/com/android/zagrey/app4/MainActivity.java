@@ -1,5 +1,6 @@
 package com.android.zagrey.app4;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,9 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.*;
 import android.widget.TextView;
+import com.common.util.Greeting;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-import com.common.util.Greeting;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -64,12 +65,26 @@ public class MainActivity extends AppCompatActivity {
 //                    .add(R.id.container, new PlaceholderFragment())
 //                    .commit();
 //        }
+
+//        final Button button = (Button) findViewById(R.id.buttonMap);
+//        button.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                Log.i("tag2", "onShowMap: 2");
+//            }
+//        });
+    }
+
+    public void onShowMap(View view){
+
+        Log.i("tag1", "onShowMap: 1");
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        new HttpRequestTask().execute();
+//        new HttpRequestTask().execute();
     }
 
     @Override

@@ -40,6 +40,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-cache:1.4.2.RELEASE')
     compile('org.postgresql:postgresql:9.4.1212.jre7')
     compile('org.projectlombok:lombok:1.16.10')
+//    compile "org.flywaydb:flyway-core:4.0.3"
     testCompile('org.springframework.boot:spring-boot-starter-test')
     compile project(path: ':common')
 }
