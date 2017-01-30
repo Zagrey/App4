@@ -80,7 +80,8 @@ public class PointController {
             @RequestBody Point point) {
 
         log.info("createPoint: before sent");
-        PointRequestObject gro = new PointRequestObject("create", point);
+        PointRequestObject gro = new PointRequestObject(point);
+        gro.setAction("create");
 
         try {
             rabbitTemplate.convertAndSend(queueName, mapper.writeValueAsString(gro));
@@ -106,7 +107,8 @@ public class PointController {
 //        }
 
         log.info("updatePoint: before sent");
-        PointRequestObject gro = new PointRequestObject("update", point);
+        PointRequestObject gro = new PointRequestObject(point);
+        gro.setAction("update");
 
         try {
             rabbitTemplate.convertAndSend(queueName, mapper.writeValueAsString(gro));
@@ -130,7 +132,8 @@ public class PointController {
 
         point.setId(id);
         log.info("deletePoint: before sent");
-        PointRequestObject gro = new PointRequestObject("delete", point);
+        PointRequestObject gro = new PointRequestObject(point);
+        gro.setAction("delete");
 
         try {
             rabbitTemplate.convertAndSend(queueName, mapper.writeValueAsString(gro));

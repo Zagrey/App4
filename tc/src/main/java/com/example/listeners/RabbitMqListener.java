@@ -1,13 +1,12 @@
 package com.example.listeners;
 
 
+import com.example.model.*;
+import com.example.service.GreetingService;
+import com.example.service.PointService;
+import com.example.thread.ThreadPool;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.model.GreetingRequestObject;
-import com.example.model.GreetingTask;
-import com.example.model.Task;
-import com.example.service.GreetingService;
-import com.example.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
@@ -23,17 +22,30 @@ public class RabbitMqListener {
 
     @Autowired
     private GreetingService greetingService;
+    @Autowired
+    private PointService pointService;
+
     private Logger logger = LoggerFactory.getLogger(RabbitMqListener.class);
     private ObjectMapper mapper = new ObjectMapper();
 
     @RabbitListener(queues = "${rabbit.input.queue}")
-    public void worker1(String message) throws InterruptedException {
-        logger.info("worker 1 submit: " + message);
+    public void tcListener(String message) throws InterruptedException {
+        logger.info("tcListener: " + message);
         try {
-            TypeReference<GreetingRequestObject> groRef = new TypeReference<GreetingRequestObject>() {};
-            GreetingRequestObject gro = mapper.readValue(message, groRef);
-            Task t = new GreetingTask(gro.getGreeting(), gro.getAction(), greetingService);
-            ThreadPool.getInstance().submitTask(t);
+            TypeReference<RequestObject> reqRef = new TypeReference<RequestObject>() {
+            };
+            RequestObject requestObject = mapper.readValue(message, reqRef);
+
+
+            if (requestObject instanceof GreetingRequestObject) {
+                GreetingRequestObject greetingRequestObject = (GreetingRequestObject) requestObject;
+                Task t = new GreetingTask(greetingRequestObject.getGreeting(), requestObject.getAction(), greetingService);
+                ThreadPool.getInstance().submitTask(t);
+            } else if (requestObject instanceof PointRequestObject) {
+                PointRequestObject pointRequestObject = (PointRequestObject) requestObject;
+                Task t = new PointTask(pointRequestObject.getPoint(), requestObject.getAction(), pointService);
+                ThreadPool.getInstance().submitTask(t);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

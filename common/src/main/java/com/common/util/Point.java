@@ -1,13 +1,19 @@
 package com.common.util;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Data
-@Entity
+@Entity(name = "points")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Point {
     @Id
     @GeneratedValue
@@ -15,6 +21,6 @@ public class Point {
     private String name;
     private String type;
     private String description;
-    private Long latitude;
-    private Long longitude;
+    private Double latitude;
+    private Double longitude;
 }

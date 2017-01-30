@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 @Data
 @AllArgsConstructor
-public class GreetingRequestObject implements Serializable{
-    String action;
+public class GreetingRequestObject extends RequestObject implements Serializable{
     Greeting greeting;
 }

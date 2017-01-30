@@ -1,7 +1,10 @@
 package com.example.service;
 
 import com.common.util.Point;
+import com.example.listeners.RabbitMqListener;
 import com.example.repository.PointRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -17,10 +20,11 @@ import java.util.Collection;
 public class PointServiceBeanJpa implements PointService {
     @Autowired
     private PointRepository pointRepository;
+    private Logger logger = LoggerFactory.getLogger(RabbitMqListener.class);
 
-    @Cacheable(
-            value = "points", key = "100"
-            )
+//    @Cacheable(
+//            value = "points", key = "100"
+//            )
     @Override
     public Collection<Point> findAll() {
 
@@ -46,13 +50,15 @@ public class PointServiceBeanJpa implements PointService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-    @CachePut(
-            value = "points",
-            key = "#result.id")
-    @CacheEvict(
-            value = "points",
-            key = "100")
+//    @CachePut(
+//            value = "points",
+//            key = "#result.id")
+//    @CacheEvict(
+//            value = "points",
+//            key = "100")
     public Point create(Point point) {
+
+        logger.info(point.toString());
 
         // Ensure the entity object to be created does NOT exist in the
         // repository. Prevent the default behavior of save() which will update

@@ -1,15 +1,17 @@
 package com.android.zagrey.app4;
 
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import com.common.util.Greeting;
+import com.common.util.Point;
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -45,6 +47,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.mapstyle_aubergine));
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -52,16 +68,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 mMap.addMarker(new MarkerOptions().position(latLng).title("BOMB on: " + latLng.latitude + ",\n" + latLng.longitude));
 
-                final String url = "http://192.168.1.197:8080/api/greetings";
+
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-                Greeting greeting = new Greeting();
-                greeting.setText("BOMB on: " + latLng.latitude + ", " + latLng.longitude);
 
-//                Greeting greetingResult = restTemplate.postForObject(url, greeting, Greeting.class);
+                Point p = Point.builder()
+                        .latitude(latLng.latitude)
+                        .longitude(latLng.longitude)
+                        .description("BOMB on: " + latLng.latitude + ", " + latLng.longitude)
+                        .build();
 
-                new HttpRequestTask().execute(greeting);
+
+                new HttpRequestTask().execute(p);
+            }
+        });
+
+        mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+
             }
         });
 
@@ -80,7 +106,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.setMyLocationEnabled(true);
         mMap.setIndoorEnabled(true);
-        mMap.setBuildingsEnabled(false);
+        mMap.setBuildingsEnabled(true);
 
         LatLng sydney = new LatLng(59.953125, 30.217260);
         CameraPosition position = new CameraPosition.Builder().target(sydney).zoom(17).bearing(0).tilt(75).build();
@@ -93,16 +119,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
     }
 
-    private class HttpRequestTask extends AsyncTask<Greeting, Void, Greeting> {
+    private class HttpRequestTask extends AsyncTask<Point, Void, Void> {
         @Override
-        protected Greeting doInBackground(Greeting... params) {
+        protected Void doInBackground(Point... params) {
             try {
-                final String url = "http://192.168.1.197:8080/api/greetings";
+                final String url = "http://192.168.1.197:8080/api/points";
                 RestTemplate restTemplate = new RestTemplate();
                 restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-                Greeting greeting = params[0];
-                Greeting greetingResult = restTemplate.postForObject(url, greeting, Greeting.class);
+                Point p = params[0];
+                restTemplate.postForObject(url, p, Point.class);
             } catch (Exception e) {
                 Log.e("MainActivity", e.getMessage(), e);
             }
@@ -110,13 +136,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return null;
         }
 
-        @Override
-        protected void onPostExecute(Greeting greeting) {
-
-            if (greeting != null) {
-                Log.i(TAG, "onPostExecute: " + greeting.getId() + ", " + greeting.getText());
-            }
-        }
+//        @Override
+//        protected void onPostExecute(Point p) {
+//
+//            if (p != null) {
+//                Log.i(TAG, "onPostExecute: " + p.getId() + ", " + p.getDescription());
+//            }
+//        }
 
     }
 }

@@ -80,7 +80,8 @@ public class GreetingController {
             @RequestBody Greeting greeting) {
 
         log.info("createGreeting: before sent");
-        GreetingRequestObject gro = new GreetingRequestObject("create", greeting);
+        GreetingRequestObject gro = new GreetingRequestObject(greeting);
+        gro.setAction("create");
 
         try {
             rabbitTemplate.convertAndSend(queueName, mapper.writeValueAsString(gro));
@@ -106,7 +107,8 @@ public class GreetingController {
 //        }
 
         log.info("updateGreeting: before sent");
-        GreetingRequestObject gro = new GreetingRequestObject("update", greeting);
+        GreetingRequestObject gro = new GreetingRequestObject(greeting);
+        gro.setAction("update");
 
         try {
             rabbitTemplate.convertAndSend(queueName, mapper.writeValueAsString(gro));
@@ -130,7 +132,8 @@ public class GreetingController {
 
         greeting.setId(id);
         log.info("deleteGreeting: before sent");
-        GreetingRequestObject gro = new GreetingRequestObject("delete", greeting);
+        GreetingRequestObject gro = new GreetingRequestObject(greeting);
+        gro.setAction("delete");
 
         try {
             rabbitTemplate.convertAndSend(queueName, mapper.writeValueAsString(gro));

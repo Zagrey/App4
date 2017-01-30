@@ -51,4 +51,14 @@
             android:layout_alignParentLeft="true" android:layout_alignParentStart="true" android:layout_marginTop="12dp"
             android:id="@+id/buttonMap" android:visibility="visible"
             android:onClick="onShowMap"/>
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" app:srcCompat="@android:drawable/sym_def_app_icon"
+            android:layout_below="@+id/buttonMap" android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" android:layout_marginTop="12dp" android:id="@+id/imageView"/>
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" app:srcCompat="@android:drawable/stat_sys_phone_call_forward"
+            android:layout_below="@+id/imageView" android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" android:layout_marginTop="19dp" android:id="@+id/imageView2"/>
 </RelativeLayout>
