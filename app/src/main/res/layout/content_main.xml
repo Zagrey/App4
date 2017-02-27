@@ -51,22 +51,23 @@
             android:layout_alignParentLeft="true" android:layout_alignParentStart="true" android:layout_marginTop="12dp"
             android:id="@+id/buttonMap" android:visibility="visible"
             android:onClick="onShowMap"/>
-    <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" app:srcCompat="@android:drawable/sym_def_app_icon"
-            android:layout_below="@+id/buttonMap" android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" android:layout_marginTop="12dp" android:id="@+id/imageView"/>
-    <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" app:srcCompat="@android:drawable/stat_sys_phone_call_forward"
-            android:layout_below="@+id/imageView" android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" android:layout_marginTop="19dp" android:id="@+id/imageView2"/>
 
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_below="@+id/buttonMap"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
     <LinearLayout
-            android:layout_below="@+id/imageView2"
+
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarAlwaysDrawHorizontalTrack="true"
+        android:scrollbars="vertical"
+        android:scrollIndicators="top|bottom"
+        android:scrollbarStyle="insideOverlay"
+        android:verticalScrollbarPosition="defaultPosition">
         <TableLayout
                 android:id="@+id/TableLayout1"
                 android:layout_width="match_parent"
@@ -354,4 +355,5 @@
 
         </TableLayout>
     </LinearLayout>
+    </ScrollView>
 </RelativeLayout>
