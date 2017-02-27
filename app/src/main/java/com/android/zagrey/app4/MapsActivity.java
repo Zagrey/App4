@@ -10,16 +10,22 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.Toast;
 import com.common.util.Point;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.location.*;
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.MarkerOptions;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.*;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnCameraMoveStartedListener,
@@ -29,7 +35,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         GoogleMap.OnCameraIdleListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -38,6 +45,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     private Location lastLocation;
     private Timer mTimer;
     private static final long TIMER_INTERVAL = 1000;
+    private static final boolean POINT_ADD_TO_DB = false;
+    private static final boolean POINTS_LOAD_FROM_DB = false;
+    private static Location mCurrentLocation;
+    private static String mLastUpdateTime;
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +69,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                     .addApi(LocationServices.API)
                     .build();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        stopLocationUpdates();
     }
 
     @Override
@@ -80,6 +99,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
         mGoogleApiClient.disconnect();
         mTimer.cancel();
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -129,7 +155,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mMap.animateCamera(cameraUpdate);
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-        mMap.addMarker(new MarkerOptions().position(home).title("Home marker"));
+//        mMap.addMarker(new MarkerOptions().position(home).title("Home marker"));
     }
 
     @Override
@@ -139,20 +165,32 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mMap.addMarker(new MarkerOptions().position(latLng).title("BOMB on: " + latLng.latitude + ",\n" + latLng.longitude));
 
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        if (mCurrentLocation != null) {
+            double dist = Util.distance(mCurrentLocation.getLatitude(), latLng.latitude,
+                    mCurrentLocation.getLongitude(), latLng.longitude, 0, 0);
+
+            Toast.makeText(this, "Distance to point: " + Math.round(dist) + " meters", Toast.LENGTH_LONG).show();
+        }
+//        RestTemplate restTemplate = new RestTemplate();
+//        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        if (POINT_ADD_TO_DB) {
+            Point p = Point.builder()
+                    .createdOn(new Timestamp(System.currentTimeMillis()))
+                    .lifeTime(15)
+                    .latitude(latLng.latitude)
+                    .longitude(latLng.longitude)
+                    .description("BOMB on: " + latLng.latitude + ", " + latLng.longitude)
+                    .build();
 
 
-        Point p = Point.builder()
-                .createdOn(new Timestamp(System.currentTimeMillis()))
-                .lifeTime(15)
-                .latitude(latLng.latitude)
-                .longitude(latLng.longitude)
-                .description("BOMB on: " + latLng.latitude + ", " + latLng.longitude)
-                .build();
+            new PointAddTask().execute(p);
+        }
+    }
 
-
-        new HttpRequestTask().execute(p);
+    private void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
     }
 
     @Override
@@ -191,9 +229,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         Log.d(TAG, "onCameraIdle: The camera has stopped moving. Last location: " + location);
 
         try {
-
-            new PointsLoaderTask().execute();
-
+            if (POINTS_LOAD_FROM_DB) {
+                new PointsLoaderTask().execute();
+            }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -201,7 +239,45 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        createLocationRequest();
 
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient,
+                        builder.build());
+
+
+
+        startLocationUpdates();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mGoogleApiClient.isConnected()) {
+            startLocationUpdates();
+        }
+    }
+
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
     }
 
     @Override
@@ -210,11 +286,18 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     }
 
     @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        Log.d(TAG, "onLocationChanged: " + mCurrentLocation );
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+    }
+
+    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 
-    private class HttpRequestTask extends AsyncTask<Point, Void, Void> {
+    private class PointAddTask extends AsyncTask<Point, Void, Void> {
         @Override
         protected Void doInBackground(Point... params) {
             try {
@@ -295,8 +378,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         //through the runOnUiThread method.
 //        this.runOnUiThread(Timer_Tick);
 
-        Log.d(TAG, "timerMethod: PointsLoaderTask().execute()");
-        new PointsLoaderTask().execute();
+        if(POINTS_LOAD_FROM_DB) {
+            Log.d(TAG, "timerMethod: PointsLoaderTask().execute()");
+            new PointsLoaderTask().execute();
+        }
     }
 
 
