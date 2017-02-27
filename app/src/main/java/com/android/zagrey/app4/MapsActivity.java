@@ -121,15 +121,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mMap.setIndoorEnabled(true);
         mMap.setBuildingsEnabled(true);
 
-        LatLng sydney = new LatLng(59.953125, 30.217260);
-        CameraPosition position = new CameraPosition.Builder().target(sydney).zoom(17).bearing(0).tilt(75).build();
+        LatLng home = new LatLng(59.951344705114785, 30.21912563592196);
+        CameraPosition position = new CameraPosition.Builder().target(home).zoom(17).bearing(0).tilt(75).build();
 
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         mMap.animateCamera(cameraUpdate);
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.addMarker(new MarkerOptions().position(home).title("Home marker"));
     }
 
     @Override

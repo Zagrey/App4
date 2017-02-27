@@ -1,19 +1,44 @@
 package com.android.zagrey.app4;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.*;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.common.util.Greeting;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.DecimalFormat;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    int samples = 0;
+
+    private SensorManager sm;
+    private Sensor acc;
+    private Sensor mag;
+
+    private EditText accX, accY, accZ;
+    private EditText magX, magY, magZ;
+    private EditText locAzimuth, locPitch, locRoll;
+    private EditText locAzimuthD, locPitchD, locRollD;
+
+    float[] mAcc; // data for accelerometer
+    float[] mMag; // data for magnetometer
+    float[] mR = new float[16];
+    float[] mI = new float[16];
+    float[] mLoc = new float[3];
 
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +97,25 @@ public class MainActivity extends AppCompatActivity {
 //                Log.i("tag2", "onShowMap: 2");
 //            }
 //        });
+
+        // gui components
+        accX = (EditText) findViewById(R.id.accX);
+        accY = (EditText) findViewById(R.id.accY);
+        accZ = (EditText) findViewById(R.id.accZ);
+        magX = (EditText) findViewById(R.id.magX);
+        magY = (EditText) findViewById(R.id.magY);
+        magZ = (EditText) findViewById(R.id.magZ);
+        locAzimuth = (EditText) findViewById(R.id.locAzimuth);
+        locPitch = (EditText) findViewById(R.id.locPitch);
+        locRoll = (EditText) findViewById(R.id.locRoll);
+        locAzimuthD = (EditText) findViewById(R.id.locAzimuthD);
+        locPitchD = (EditText) findViewById(R.id.locPitchD);
+        locRollD = (EditText) findViewById(R.id.locRollD);
+
+        //sensors
+        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        acc = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mag = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
     public void onShowMap(View view){
@@ -85,6 +129,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 //        new HttpRequestTask().execute();
+        sm.registerListener(this, acc, SensorManager.SENSOR_DELAY_UI);
+        sm.registerListener(this, mag, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        sm.unregisterListener(this);
     }
 
     @Override
@@ -106,6 +158,49 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mAcc = event.values.clone();
+
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            mMag = event.values.clone();
+
+        if (mAcc != null && mMag != null) {
+            boolean success = SensorManager.getRotationMatrix(mR, mI, mAcc, mMag);
+            if (success) {
+                samples++;
+                if ( samples <= 10 ) {
+                    return;
+                }
+                samples = 1;
+
+                SensorManager.getOrientation(mR, mLoc);
+
+                //set text in view
+                DecimalFormat df = new DecimalFormat("###.####");
+                accX.setText(df.format(mAcc[0]));
+                accY.setText(df.format(mAcc[1]));
+                accZ.setText(df.format(mAcc[2]));
+                magX.setText(df.format(mMag[0]));
+                magY.setText(df.format(mMag[1]));
+                magZ.setText(df.format(mMag[2]));
+                locAzimuth.setText(df.format(mLoc[0]));
+                locPitch.setText(df.format(mLoc[1]));
+                locRoll.setText(df.format(mLoc[2]));
+                locAzimuthD.setText(df.format(Math.toDegrees(mLoc[0])));
+                locPitchD.setText(df.format(Math.toDegrees(mLoc[1])));
+                locRollD.setText(df.format(Math.toDegrees(mLoc[2])));
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
     }
 
     public static class PlaceholderFragment extends Fragment {
