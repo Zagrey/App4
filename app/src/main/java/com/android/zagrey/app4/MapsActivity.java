@@ -162,17 +162,21 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick: " + latLng.latitude + ", " + latLng.longitude);
 
-        mMap.addMarker(new MarkerOptions().position(latLng).title("BOMB on: " + latLng.latitude + ",\n" + latLng.longitude));
-
+        String description = "BOMB on: " + latLng.latitude + ",\n" + latLng.longitude;
 
         if (mCurrentLocation != null) {
             double dist = Util.distance(mCurrentLocation.getLatitude(), latLng.latitude,
                     mCurrentLocation.getLongitude(), latLng.longitude, 0, 0);
 
-            Toast.makeText(this, "Distance to point: " + Math.round(dist) + " meters", Toast.LENGTH_LONG).show();
+            double azimuth = Util.azimuth(mCurrentLocation.getLatitude(), latLng.latitude,
+                    mCurrentLocation.getLongitude(), latLng.longitude);
+
+            description = "Distance to point: " + Math.round(dist) + " meters, azimuth: " +
+                    Math.round(azimuth) + " degrees";
+            Toast.makeText(this, description, Toast.LENGTH_LONG).show();
         }
-//        RestTemplate restTemplate = new RestTemplate();
-//        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        mMap.addMarker(new MarkerOptions().position(latLng).title(description));
 
         if (POINT_ADD_TO_DB) {
             Point p = Point.builder()
@@ -180,7 +184,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                     .lifeTime(15)
                     .latitude(latLng.latitude)
                     .longitude(latLng.longitude)
-                    .description("BOMB on: " + latLng.latitude + ", " + latLng.longitude)
+                    .description(description)
                     .build();
 
 
@@ -197,24 +201,24 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     public void onCameraMoveStarted(int reason) {
 
         if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
-            Log.d(TAG, "onCameraMoveStarted: The user gestured on the map (REASON_GESTURE)");
+            Log.v(TAG, "onCameraMoveStarted: The user gestured on the map (REASON_GESTURE)");
         } else if (reason == GoogleMap.OnCameraMoveStartedListener
                 .REASON_API_ANIMATION) {
-            Log.d(TAG, "onCameraMoveStarted: The user tapped something on the map (REASON_API_ANIMATION)");
+            Log.v(TAG, "onCameraMoveStarted: The user tapped something on the map (REASON_API_ANIMATION)");
         } else if (reason == GoogleMap.OnCameraMoveStartedListener
                 .REASON_DEVELOPER_ANIMATION) {
-            Log.d(TAG, "onCameraMoveStarted: The app moved the camera (REASON_DEVELOPER_ANIMATION)");
+            Log.v(TAG, "onCameraMoveStarted: The app moved the camera (REASON_DEVELOPER_ANIMATION)");
         }
     }
 
     @Override
     public void onCameraMove() {
-        Log.d(TAG, "onCameraMove: The camera is moving.");
+        Log.v(TAG, "onCameraMove: The camera is moving.");
     }
 
     @Override
     public void onCameraMoveCanceled() {
-        Log.d(TAG, "onCameraMoveCanceled: Camera movement canceled.");
+        Log.v(TAG, "onCameraMoveCanceled: Camera movement canceled.");
     }
 
     @SuppressWarnings("MissingPermission")
@@ -226,7 +230,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         String location = lastLocation == null ?
                 "unknown" :
                 lastLocation.getLatitude() + ", " + lastLocation.getLongitude();
-        Log.d(TAG, "onCameraIdle: The camera has stopped moving. Last location: " + location);
+        Log.v(TAG, "onCameraIdle: The camera has stopped moving. Last location: " + location);
 
         try {
             if (POINTS_LOAD_FROM_DB) {
