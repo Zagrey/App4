@@ -17,7 +17,7 @@
     string in this file.
     -->
     <!--Lenovo-->
-    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyDfO3xhgD-Yn_QEn4QL_gjSGkrKDGfi_N8</string>
+    <!--<string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyDfO3xhgD-Yn_QEn4QL_gjSGkrKDGfi_N8</string>-->
 
-    <!--<string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyAEuhS_8Qo7q&#45;&#45;GFerDiUVox2u6nXQ9UNo</string>-->
+    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyAEuhS_8Qo7q--GFerDiUVox2u6nXQ9UNo</string>
 </resources>

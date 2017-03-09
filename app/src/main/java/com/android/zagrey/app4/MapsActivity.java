@@ -147,12 +147,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mMap.setIndoorEnabled(true);
         mMap.setBuildingsEnabled(true);
 
-        LatLng home = new LatLng(59.951344705114785, 30.21912563592196);
-        CameraPosition position = new CameraPosition.Builder().target(home).zoom(17).bearing(0).tilt(75).build();
-
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(position);
-        mMap.animateCamera(cameraUpdate);
+//        LatLng home = new LatLng(59.951344705114785, 30.21912563592196);
+//        CameraPosition position = new CameraPosition.Builder().target(home).zoom(17).bearing(0).tilt(75).build();
+//
+//
+//        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(position);
+//        mMap.animateCamera(cameraUpdate);
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
 //        mMap.addMarker(new MarkerOptions().position(home).title("Home marker"));
@@ -209,6 +209,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                 .REASON_DEVELOPER_ANIMATION) {
             Log.v(TAG, "onCameraMoveStarted: The app moved the camera (REASON_DEVELOPER_ANIMATION)");
         }
+
     }
 
     @Override
@@ -294,6 +295,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mCurrentLocation = location;
         Log.d(TAG, "onLocationChanged: " + mCurrentLocation );
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+
+        LatLng p = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraPosition position = new CameraPosition.Builder().target(p).zoom(17).bearing(0).tilt(75).build();
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(position);
+        mMap.animateCamera(cameraUpdate);
     }
 
     @Override

@@ -125,6 +125,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startActivity(intent);
     }
 
+    public void onCamera(View view){
+
+        Log.i("tag1", "onCamera");
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
